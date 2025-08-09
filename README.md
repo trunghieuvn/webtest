@@ -7,3 +7,5 @@ Home of the [shorebird.dev](https://shorebird.dev) site.
 ```
 docker compose up --build
 ```
+
+test

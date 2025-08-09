@@ -1,0 +1,24 @@
+---
+import { getCollection, render } from 'astro:content';
+import BlogLayout from '@/layouts/blog.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+export function getWordCount(content: string | undefined) {
+  if (!content) return 0;
+  return content.split(/\s/g).length;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BlogLayout {...post.data} wordCount={getWordCount(post.body)}>
+  <Content />
+</BlogLayout>

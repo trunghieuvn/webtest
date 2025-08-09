@@ -1,0 +1,163 @@
+---
+import '@/styles/global.css';
+import { BlogCallout } from '@/components/blog/blog-callout';
+import { ClockCountdownIcon } from '@phosphor-icons/react';
+import { Image } from 'astro:assets';
+import { Navbar } from '@/components/ui/navbar';
+import { Spacer } from '@/components/ui/spacer';
+import bryanHeadshot from '@/assets/blog/headshots/bryan-headshot.png';
+import ericHeadshot from '@/assets/blog/headshots/eric-headshot.jpeg';
+import felixHeadshot from '@/assets/blog/headshots/felix-headshot.jpeg';
+import Footer from '@/components/ui/footer.astro';
+import FormattedDate from '@/components/blog/formatted-date.astro';
+import shorebirdHeadshot from '@/assets/blog/headshots/shorebird-headshot.png';
+import tomHeadshot from '@/assets/blog/headshots/tom-headshot.jpg';
+
+function getReadingTime(wordCount: number) {
+  const wordsPerMinute = 250;
+  const numMinutes = Math.max(Math.ceil(wordCount / wordsPerMinute), 1);
+  return `${numMinutes} min read`;
+}
+
+const { title, description, author, date, wordCount } = Astro.props;
+const readingTime = getReadingTime(wordCount);
+const coverUrl = new URL('/blog/open-graph.png', Astro.url.origin);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+
+interface Author {
+  name: string;
+  title: string;
+  avatar: ImageMetadata;
+  github: string;
+  twitter?: string;
+}
+
+const authors: Record<string, Author> = {
+  shorebirdtech: {
+    name: 'Shorebird',
+    title: 'The Shorebird Team',
+    avatar: shorebirdHeadshot,
+    github: 'shorebirdtech',
+    twitter: '@shorebirddev',
+  },
+  eseidel: {
+    name: 'Eric Seidel',
+    title: 'Founder & CEO',
+    avatar: ericHeadshot,
+    github: 'eseidel',
+    twitter: '@_eseidel',
+  },
+  felangel: {
+    name: 'Felix Angelov',
+    title: 'Founding Engineer',
+    avatar: felixHeadshot,
+    github: 'felangel',
+    twitter: '@felangelov',
+  },
+  bryanoltman: {
+    name: 'Bryan Oltman',
+    title: 'Founding Engineer',
+    avatar: bryanHeadshot,
+    github: 'bryanoltman',
+  },
+  tomarra: {
+    name: 'Tom Arra',
+    title: 'Founding Operations Lead',
+    avatar: tomHeadshot,
+    github: 'tomarra',
+  },
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="description" property="og:description" content={description} />
+    <meta property="og:image" content={coverUrl} />
+    <meta name="image" property="og:image" content={coverUrl} />
+    <meta property="article:published_time" content={date} />
+    <meta property="article:author" content={author} />
+    <meta property="article:section" content="Technology" />
+    <meta name="author" content={author} />
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="twitter:domain" content="shorebird.dev" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={coverUrl} />
+    <meta name="twitter:site" content="@shorebirddev" />
+    {
+      authors[author].twitter && (
+        <meta name="twitter:creator" content={authors[author].twitter} />
+      )
+    }
+
+    <!-- Analytics -->
+    <script
+      defer
+      data-domain="shorebird.dev"
+      src="https://plausible.io/js/script.js"></script>
+  </head>
+  <body>
+    <Navbar client:load />
+    <article
+      class="prose prose-invert mx-auto w-11/12 py-9 lg:pt-20 xl:w-10/12 2xl:w-[1280px]"
+    >
+      <h1 class="m-0! text-center">{title}</h1>
+      <Spacer className="h-4" />
+      <div class="flex w-full flex-row items-center justify-center gap-2">
+        <Image
+          src={authors[author].avatar}
+          alt={authors[author].name}
+          class="m-0! size-6 rounded-full"
+        />
+        <p class="text-text-1 m-0! text-sm">
+          <a
+            class="no-underline hover:underline"
+            href={`https://github.com/${authors[author].github}`}
+          >
+            {authors[author].name}
+          </a>
+        </p>
+        <p class="m-0! text-sm">{authors[author].title}</p>
+      </div>
+      <Spacer className="h-12" />
+      <div class="flex flex-row items-center justify-between">
+        <span
+          class="text-text-2 m-0! flex flex-row items-center justify-center gap-1 text-sm"
+          ><ClockCountdownIcon className="inline size-4" />{readingTime}</span
+        >
+        <span class="text-text-2 m-0! text-sm"
+          ><FormattedDate date={date} /></span
+        >
+      </div>
+      <slot />
+      <BlogCallout client:load />
+    </article>
+    <Footer />
+    <style is:global>
+      .prose {
+        max-width: 80ch;
+      }
+    </style>
+  </body>
+</html>
